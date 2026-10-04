@@ -1,0 +1,657 @@
+-- TỰ ĐỘNG XÓA GUI CŨ NẾU ĐÃ TỒN TẠI
+if game:GetService("CoreGui"):FindFirstChild("VitVangHubGui") then
+    game:GetService("CoreGui").VitVangHubGui:Destroy()
+end
+
+if game:GetService("CoreGui"):FindFirstChild("VitVangKeyGui") then
+    game:GetService("CoreGui").VitVangKeyGui:Destroy()
+end
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+
+-- CẤU HÌNH KEY SYSTEM (Bạn có thể đổi Key tại đây)
+local CORRECT_KEY = "VitVangHub2026"
+local GET_KEY_LINK = "https://pastefy.app/nmDP9uaE/raw"
+
+-- =======================================================
+-- HỆ THỐNG GIAO DIỆN NHẬP KEY (KEY SYSTEM GUI)
+-- =======================================================
+local KeyGui = Instance.new("ScreenGui")
+KeyGui.Name = "VitVangKeyGui"
+KeyGui.Parent = game:GetService("CoreGui")
+KeyGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+local KeyFrame = Instance.new("Frame")
+KeyFrame.Name = "KeyFrame"
+KeyFrame.Parent = KeyGui
+KeyFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
+KeyFrame.Position = UDim2.new(0.5, -175, 0.5, -110)
+KeyFrame.Size = UDim2.new(0, 350, 0, 220)
+KeyFrame.Active = true
+KeyFrame.Draggable = true
+Instance.new("UICorner", KeyFrame).CornerRadius = UDim.new(0, 12)
+
+local KeyStroke = Instance.new("UIStroke", KeyFrame)
+KeyStroke.Thickness = 2
+KeyStroke.Color = Color3.fromRGB(255, 204, 0)
+
+local KeyTitle = Instance.new("TextLabel", KeyFrame)
+KeyTitle.Text = "🔑 VỊT VÀNG HUB - KEY SYSTEM"
+KeyTitle.TextColor3 = Color3.fromRGB(255, 204, 0)
+KeyTitle.Font = Enum.Font.GothamBold
+KeyTitle.TextSize = 14
+KeyTitle.Position = UDim2.new(0, 0, 0, 15)
+KeyTitle.Size = UDim2.new(1, 0, 0, 25)
+KeyTitle.BackgroundTransparency = 1
+
+local KeyInput = Instance.new("TextBox", KeyFrame)
+KeyInput.Size = UDim2.new(0.85, 0, 0, 38)
+KeyInput.Position = UDim2.new(0.075, 0, 0.28, 0)
+KeyInput.PlaceholderText = "Nhập Key vào đây..."
+KeyInput.PlaceholderColor3 = Color3.fromRGB(120, 120, 140)
+KeyInput.Text = ""
+KeyInput.BackgroundColor3 = Color3.fromRGB(22, 22, 30)
+KeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+KeyInput.Font = Enum.Font.GothamMedium
+KeyInput.TextSize = 12
+Instance.new("UICorner", KeyInput).CornerRadius = UDim.new(0, 8)
+local InputStroke = Instance.new("UIStroke", KeyInput)
+InputStroke.Color = Color3.fromRGB(45, 45, 60)
+
+local StatusLabel = Instance.new("TextLabel", KeyFrame)
+StatusLabel.Text = "Vui lòng nhập Key để tiếp tục"
+StatusLabel.TextColor3 = Color3.fromRGB(180, 180, 195)
+StatusLabel.Font = Enum.Font.Gotham
+StatusLabel.TextSize = 11
+StatusLabel.Position = UDim2.new(0, 0, 0.48, 0)
+StatusLabel.Size = UDim2.new(1, 0, 0, 20)
+StatusLabel.BackgroundTransparency = 1
+
+local SubmitBtn = Instance.new("TextButton", KeyFrame)
+SubmitBtn.Size = UDim2.new(0.4, 0, 0, 35)
+SubmitBtn.Position = UDim2.new(0.075, 0, 0.65, 0)
+SubmitBtn.BackgroundColor3 = Color3.fromRGB(255, 204, 0)
+SubmitBtn.Text = "Xác Nhận Key"
+SubmitBtn.TextColor3 = Color3.fromRGB(15, 15, 20)
+SubmitBtn.Font = Enum.Font.GothamBold
+SubmitBtn.TextSize = 11
+Instance.new("UICorner", SubmitBtn).CornerRadius = UDim.new(0, 8)
+
+local GetKeyBtn = Instance.new("TextButton", KeyFrame)
+GetKeyBtn.Size = UDim2.new(0.4, 0, 0, 35)
+GetKeyBtn.Position = UDim2.new(0.525, 0, 0.65, 0)
+GetKeyBtn.BackgroundColor3 = Color3.fromRGB(32, 32, 45)
+GetKeyBtn.Text = "Lấy Key (Copy Link)"
+GetKeyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+GetKeyBtn.Font = Enum.Font.GothamBold
+GetKeyBtn.TextSize = 11
+Instance.new("UICorner", GetKeyBtn).CornerRadius = UDim.new(0, 8)
+
+GetKeyBtn.MouseButton1Click:Connect(function()
+    if setclipboard then
+        setclipboard(GET_KEY_LINK)
+        StatusLabel.Text = "🟢 Đã copy Link lấy Key vào bộ nhớ tạm!"
+        StatusLabel.TextColor3 = Color3.fromRGB(0, 255, 127)
+    else
+        StatusLabel.Text = "❌ Executor không hỗ trợ copy tự động!"
+        StatusLabel.TextColor3 = Color3.fromRGB(255, 60, 60)
+    end
+end)
+
+-- KHỞI TẠO HUB CHÍNH KHI XÁC THỰC THÀNH CÔNG
+local function LoadMainHub()
+    KeyGui:Destroy()
+
+    -- ENGINE CHẠY NGẦM DÙNG CHO NOCLIP, JUMP, HITBOX
+    getgenv().UmlagiSpeedEngine = getgenv().UmlagiSpeedEngine or {
+        Noclip = false,
+        JumpPower = 50,
+        HitboxSize = 2,
+        InfiniteJump = false
+    }
+
+    -- INFINITE JUMP
+    UserInputService.JumpRequest:Connect(function()
+        if getgenv().UmlagiSpeedEngine.InfiniteJump then
+            local Character = LocalPlayer.Character
+            if Character then
+                local Humanoid = Character:FindFirstChildOfClass("Humanoid")
+                if Humanoid then
+                    Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+                end
+            end
+        end
+    end)
+
+    -- ENGINE LOGIC
+    pcall(function()
+        settings().Physics.PhysicsEnvironmentalThrottle = 1
+        game:GetService("Lighting").GlobalShadows = false 
+        task.spawn(function()
+            while task.wait(5) do collectgarbage("collect") end
+        end)
+    end)
+
+    RunService.Heartbeat:Connect(function()
+        pcall(function()
+            local Character = LocalPlayer.Character
+            if not Character then return end
+            
+            if getgenv().UmlagiSpeedEngine.Noclip then
+                for _, child in pairs(Character:GetDescendants()) do
+                    if child:IsA("BasePart") and child.CanCollide == true then
+                        child.CanCollide = false
+                    end
+                end
+            end
+
+            local Humanoid = Character:FindFirstChildOfClass("Humanoid")
+            if Humanoid then
+                if Humanoid.UseJumpPower then
+                    if Humanoid.JumpPower ~= getgenv().UmlagiSpeedEngine.JumpPower then 
+                        Humanoid.JumpPower = getgenv().UmlagiSpeedEngine.JumpPower 
+                    end
+                else
+                    local targetHeight = (getgenv().UmlagiSpeedEngine.JumpPower == 50) and 7.2 or (getgenv().UmlagiSpeedEngine.JumpPower * 0.144)
+                    if Humanoid.JumpHeight ~= targetHeight then 
+                        Humanoid.JumpHeight = targetHeight 
+                    end
+                end
+            end
+
+            local currentSize = getgenv().UmlagiSpeedEngine.HitboxSize
+            if currentSize and currentSize > 2 then
+                for _, p in pairs(Players:GetPlayers()) do
+                    if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                        local hrp = p.Character.HumanoidRootPart
+                        hrp.Size = Vector3.new(currentSize, currentSize, currentSize)
+                        hrp.Transparency = 0.7 
+                        hrp.Color = Color3.fromRGB(0, 230, 255) 
+                        hrp.CanCollide = false 
+                    end
+                end
+            end
+        end)
+    end)
+
+    -- GUI ROOT
+    local VitVangGui = Instance.new("ScreenGui")
+    VitVangGui.Name = "VitVangHubGui"
+    VitVangGui.Parent = game:GetService("CoreGui")
+    VitVangGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+    -- LOGO NÚT BẤM DI CHUYỂN
+    local LogoBtn = Instance.new("TextButton")
+    LogoBtn.Name = "LogoButton"
+    LogoBtn.Parent = VitVangGui
+    LogoBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
+    LogoBtn.Position = UDim2.new(0.05, 0, 0.2, 0)
+    LogoBtn.Size = UDim2.new(0, 52, 0, 52)
+    LogoBtn.Text = "🐥"
+    LogoBtn.TextSize = 28
+    LogoBtn.Active = true
+    LogoBtn.Draggable = true
+
+    Instance.new("UICorner", LogoBtn).CornerRadius = UDim.new(0, 16)
+    local LogoStroke = Instance.new("UIStroke", LogoBtn)
+    LogoStroke.Color = Color3.fromRGB(255, 204, 0)
+    LogoStroke.Thickness = 2
+
+    -- KHUNG MENU CHÍNH
+    local MainFrame = Instance.new("Frame")
+    MainFrame.Name = "MainFrame"
+    MainFrame.Parent = VitVangGui
+    MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
+    MainFrame.Position = UDim2.new(0.5, -300, 0.5, -200)
+    MainFrame.Size = UDim2.new(0, 600, 0, 400)
+    MainFrame.ClipsDescendants = true
+    MainFrame.Active = true
+    MainFrame.Draggable = true
+
+    Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 14)
+
+    local function ResetMenuPosition()
+        local size = MainFrame.Size
+        MainFrame.Position = UDim2.new(0.5, -size.X.Offset / 2, 0.5, -size.Y.Offset / 2)
+    end
+
+    -- VIỀN NEON ĐỔI MÀU MƯỢT MÀ
+    local MainStroke = Instance.new("UIStroke", MainFrame)
+    MainStroke.Thickness = 2
+    MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+    local ColorList = {
+        Color3.fromRGB(255, 204, 0), Color3.fromRGB(255, 100, 0), Color3.fromRGB(255, 0, 128),
+        Color3.fromRGB(0, 230, 255), Color3.fromRGB(0, 255, 128)
+    }
+
+    task.spawn(function()
+        while true do
+            for _, color in ipairs(ColorList) do
+                local tween = TweenService:Create(MainStroke, TweenInfo.new(1.2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Color = color})
+                tween:Play()
+                tween.Completed:Wait()
+            end
+        end
+    end)
+
+    -- TOP BAR
+    local TopBar = Instance.new("Frame", MainFrame)
+    TopBar.Size = UDim2.new(1, 0, 0, 50)
+    TopBar.BackgroundColor3 = Color3.fromRGB(22, 22, 30)
+    TopBar.BorderSizePixel = 0
+
+    Instance.new("UICorner", TopBar).CornerRadius = UDim.new(0, 14)
+
+    local TopBarFix = Instance.new("Frame", TopBar)
+    TopBarFix.Size = UDim2.new(1, 0, 0, 15)
+    TopBarFix.Position = UDim2.new(0, 0, 1, -15)
+    TopBarFix.BackgroundColor3 = Color3.fromRGB(22, 22, 30)
+    TopBarFix.BorderSizePixel = 0
+
+    -- AVATAR & TIÊU ĐỀ
+    local AvatarImg = Instance.new("ImageLabel", TopBar)
+    AvatarImg.Size = UDim2.new(0, 34, 0, 34)
+    AvatarImg.Position = UDim2.new(0, 10, 0, 8)
+    AvatarImg.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    AvatarImg.Image = Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
+    Instance.new("UICorner", AvatarImg).CornerRadius = UDim.new(1, 0)
+
+    local TopTitle = Instance.new("TextLabel", TopBar)
+    TopTitle.Text = "VỊT VÀNG <font color=\"#FFCC00\">HUB</font>"
+    TopTitle.RichText = true
+    TopTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TopTitle.TextSize = 14
+    TopTitle.Font = Enum.Font.GothamBold
+    TopTitle.Position = UDim2.new(0, 52, 0, 0)
+    TopTitle.Size = UDim2.new(0, 120, 1, 0)
+    TopTitle.BackgroundTransparency = 1
+    TopTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+    -- KHUNG TÌM KIẾM
+    local TopSearchBox = Instance.new("TextBox", TopBar)
+    TopSearchBox.Size = UDim2.new(0, 180, 0, 30)
+    TopSearchBox.Position = UDim2.new(0, 175, 0, 10)
+    TopSearchBox.PlaceholderText = "🔍 Tìm nhanh..."
+    TopSearchBox.PlaceholderColor3 = Color3.fromRGB(120, 120, 140)
+    TopSearchBox.Text = ""
+    TopSearchBox.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
+    TopSearchBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TopSearchBox.Font = Enum.Font.Gotham
+    TopSearchBox.TextSize = 11
+    Instance.new("UICorner", TopSearchBox).CornerRadius = UDim.new(0, 8)
+
+    local SearchStroke = Instance.new("UIStroke", TopSearchBox)
+    SearchStroke.Color = Color3.fromRGB(45, 45, 60)
+    SearchStroke.Thickness = 1
+
+    -- NÚT ĐIỀU KHIỂN HEADER
+    local BtnHolder = Instance.new("Frame", TopBar)
+    BtnHolder.Size = UDim2.new(0, 140, 1, 0)
+    BtnHolder.Position = UDim2.new(1, -145, 0, 0)
+    BtnHolder.BackgroundTransparency = 1
+
+    local UIListBtns = Instance.new("UIListLayout", BtnHolder)
+    UIListBtns.FillDirection = Enum.FillDirection.Horizontal
+    UIListBtns.HorizontalAlignment = Enum.HorizontalAlignment.Right
+    UIListBtns.VerticalAlignment = Enum.VerticalAlignment.Center
+    UIListBtns.Padding = UDim.new(0, 5)
+
+    local function CreateHeaderBtn(name, text, color)
+        local btn = Instance.new("TextButton", BtnHolder)
+        btn.Name = name
+        btn.Size = UDim2.new(0, 28, 0, 28)
+        btn.BackgroundColor3 = color
+        btn.Text = text
+        btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        btn.Font = Enum.Font.GothamBold
+        btn.TextSize = 12
+        Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+        return btn
+    end
+
+    local ResetPosBtn = CreateHeaderBtn("ResetPosBtn", "🔄", Color3.fromRGB(32, 32, 45))
+    local MinBtn = CreateHeaderBtn("MinBtn", "─", Color3.fromRGB(32, 32, 45))
+    local MaxBtn = CreateHeaderBtn("MaxBtn", "🗖", Color3.fromRGB(32, 32, 45))
+    local CloseBtn = CreateHeaderBtn("CloseBtn", "✕", Color3.fromRGB(220, 60, 70))
+
+    local defaultSize = UDim2.new(0, 600, 0, 400)
+    local maximizedSize = UDim2.new(0, 750, 0, 480)
+    local isMaximized = false
+
+    ResetPosBtn.MouseButton1Click:Connect(ResetMenuPosition)
+    MinBtn.MouseButton1Click:Connect(function() MainFrame.Visible = false end)
+    CloseBtn.MouseButton1Click:Connect(function() VitVangGui:Destroy() end)
+
+    LogoBtn.MouseButton1Click:Connect(function()
+        MainFrame.Visible = not MainFrame.Visible
+        if MainFrame.Visible then ResetMenuPosition() end
+    end)
+
+    MaxBtn.MouseButton1Click:Connect(function()
+        if isMaximized then
+            MainFrame.Size = defaultSize
+            MaxBtn.Text = "🗖"
+        else
+            MainFrame.Size = maximizedSize
+            MaxBtn.Text = "🗗"
+        end
+        isMaximized = not isMaximized
+        ResetMenuPosition()
+    end)
+
+    -- TAB HOLDER BÊN TRÁI
+    local TabHolder = Instance.new("ScrollingFrame", MainFrame)
+    TabHolder.Size = UDim2.new(0, 150, 1, -60)
+    TabHolder.Position = UDim2.new(0, 10, 0, 55)
+    TabHolder.BackgroundTransparency = 1
+    TabHolder.ScrollBarThickness = 0
+    TabHolder.AutomaticCanvasSize = Enum.AutomaticSize.Y
+
+    local TabList = Instance.new("UIListLayout", TabHolder)
+    TabList.Padding = UDim.new(0, 6)
+
+    -- CONTENT HOLDER BÊN PHẢI
+    local ContentHolder = Instance.new("Frame", MainFrame)
+    ContentHolder.Size = UDim2.new(1, -175, 1, -60)
+    ContentHolder.Position = UDim2.new(0, 165, 0, 55)
+    ContentHolder.BackgroundTransparency = 1
+
+    local TabNames = {
+        "1. Trang Chủ", "2. Chiến đấu", "3. Bay và chạy", 
+        "4. Người Chơi", "5. Teleport", "6. Bá khí", "7. Hệ Thống"
+    }
+
+    local TabFrames = {}
+    local TabButtons = {}
+
+    -- UI BUILDERS
+    local function CreateSection(parentFrame, sectionTitle)
+        local sectionLabel = Instance.new("TextLabel", parentFrame)
+        sectionLabel.Size = UDim2.new(1, -5, 0, 28)
+        sectionLabel.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+        sectionLabel.Text = "   📌 " .. string.upper(sectionTitle)
+        sectionLabel.TextColor3 = Color3.fromRGB(255, 204, 0)
+        sectionLabel.Font = Enum.Font.GothamBold
+        sectionLabel.TextSize = 10
+        sectionLabel.TextXAlignment = Enum.TextXAlignment.Left
+        Instance.new("UICorner", sectionLabel).CornerRadius = UDim.new(0, 6)
+        return sectionLabel
+    end
+
+    local function CreateFeatureBtn(parentFrame, btnText, scriptUrl)
+        local btn = Instance.new("TextButton", parentFrame)
+        btn.Size = UDim2.new(1, -5, 0, 34)
+        btn.BackgroundColor3 = Color3.fromRGB(22, 22, 30)
+        btn.Text = "  " .. btnText
+        btn.TextColor3 = Color3.fromRGB(230, 230, 240)
+        btn.Font = Enum.Font.GothamMedium
+        btn.TextSize = 11
+        btn.TextXAlignment = Enum.TextXAlignment.Left
+        Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+        
+        local stroke = Instance.new("UIStroke", btn)
+        stroke.Color = Color3.fromRGB(35, 35, 50)
+        stroke.Thickness = 1
+
+        btn.MouseEnter:Connect(function()
+            TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(32, 32, 45)}):Play()
+            TweenService:Create(stroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(255, 204, 0)}):Play()
+        end)
+        btn.MouseLeave:Connect(function()
+            TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(22, 22, 30)}):Play()
+            TweenService:Create(stroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(35, 35, 50)}):Play()
+        end)
+        
+        btn.MouseButton1Click:Connect(function()
+            if type(scriptUrl) == "function" then
+                scriptUrl()
+            elseif type(scriptUrl) == "string" then
+                loadstring(game:HttpGet(scriptUrl))()
+            end
+        end)
+        return btn
+    end
+
+    local function CreateInputBox(parentFrame, placeholderText, defaultVal, callback)
+        local container = Instance.new("Frame", parentFrame)
+        container.Size = UDim2.new(1, -5, 0, 34)
+        container.BackgroundColor3 = Color3.fromRGB(22, 22, 30)
+        Instance.new("UICorner", container).CornerRadius = UDim.new(0, 8)
+        
+        local stroke = Instance.new("UIStroke", container)
+        stroke.Color = Color3.fromRGB(35, 35, 50)
+        stroke.Thickness = 1
+
+        local box = Instance.new("TextBox", container)
+        box.Size = UDim2.new(1, -10, 1, 0)
+        box.Position = UDim2.new(0, 5, 0, 0)
+        box.BackgroundTransparency = 1
+        box.PlaceholderText = placeholderText
+        box.Text = tostring(defaultVal or "")
+        box.TextColor3 = Color3.fromRGB(255, 204, 0)
+        box.Font = Enum.Font.GothamMedium
+        box.TextSize = 11
+
+        box.FocusLost:Connect(function()
+            local num = tonumber(box.Text)
+            if num then callback(num) end
+        end)
+        return container
+    end
+
+    local function CreateToggleBtn(parentFrame, btnText, defaultState, callback)
+        local state = defaultState or false
+        local btn = Instance.new("TextButton", parentFrame)
+        btn.Size = UDim2.new(1, -5, 0, 34)
+        btn.BackgroundColor3 = state and Color3.fromRGB(35, 65, 45) or Color3.fromRGB(22, 22, 30)
+        btn.Text = (state and " 🟢 " or " 🔴 ") .. btnText
+        btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        btn.Font = Enum.Font.GothamMedium
+        btn.TextSize = 11
+        btn.TextXAlignment = Enum.TextXAlignment.Left
+        Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+        
+        local stroke = Instance.new("UIStroke", btn)
+        stroke.Color = state and Color3.fromRGB(0, 255, 127) or Color3.fromRGB(35, 35, 50)
+        stroke.Thickness = 1
+        
+        btn.MouseButton1Click:Connect(function()
+            state = not state
+            btn.BackgroundColor3 = state and Color3.fromRGB(35, 65, 45) or Color3.fromRGB(22, 22, 30)
+            btn.Text = (state and " 🟢 " or " 🔴 ") .. btnText
+            stroke.Color = state and Color3.fromRGB(0, 255, 127) or Color3.fromRGB(35, 35, 50)
+            callback(state)
+        end)
+        return btn
+    end
+
+    -- TẠO KHUNG CÁC TAB
+    for i, name in ipairs(TabNames) do
+        local tabBtn = Instance.new("TextButton", TabHolder)
+        tabBtn.Size = UDim2.new(1, 0, 0, 36)
+        tabBtn.BackgroundColor3 = (i == 1) and Color3.fromRGB(255, 204, 0) or Color3.fromRGB(22, 22, 30)
+        tabBtn.Text = name
+        tabBtn.TextColor3 = (i == 1) and Color3.fromRGB(15, 15, 20) or Color3.fromRGB(180, 180, 195)
+        tabBtn.Font = Enum.Font.GothamBold
+        tabBtn.TextSize = 11
+        Instance.new("UICorner", tabBtn).CornerRadius = UDim.new(0, 8)
+        
+        TabButtons[i] = tabBtn
+
+        local cFrame = Instance.new("ScrollingFrame", ContentHolder)
+        cFrame.Size = UDim2.new(1, 0, 1, 0)
+        cFrame.BackgroundTransparency = 1
+        cFrame.Visible = (i == 1)
+        cFrame.ScrollBarThickness = 2
+        cFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+        
+        Instance.new("UIListLayout", cFrame).Padding = UDim.new(0, 6)
+        TabFrames[i] = cFrame
+
+        tabBtn.MouseButton1Click:Connect(function()
+            for j, frame in ipairs(TabFrames) do
+                frame.Visible = (j == i)
+                TabButtons[j].BackgroundColor3 = (j == i) and Color3.fromRGB(255, 204, 0) or Color3.fromRGB(22, 22, 30)
+                TabButtons[j].TextColor3 = (j == i) and Color3.fromRGB(15, 15, 20) or Color3.fromRGB(180, 180, 195)
+            end
+        end)
+    end
+
+    -- TÌM KIẾM CÔNG CỤ
+    TopSearchBox:GetPropertyChangedSignal("Text"):Connect(function()
+        local searchText = string.lower(TopSearchBox.Text)
+        for _, tabFrame in ipairs(TabFrames) do
+            for _, child in pairs(tabFrame:GetChildren()) do
+                if child:IsA("TextButton") then
+                    child.Visible = (searchText == "" or string.find(string.lower(child.Text), searchText, 1, true) ~= nil)
+                elseif child:IsA("TextLabel") then
+                    child.Visible = (searchText == "")
+                end
+            end
+        end
+    end)
+
+    -- TAB 1: TRANG CHỦ
+    CreateSection(TabFrames[1], "Chúc mọi người chơi game vui vẻ và cảm ơn đã dùng script!")
+
+    -- TAB 2: CHIẾN ĐẤU
+    CreateSection(TabFrames[2], "Tùy Chỉnh Hitbox Đối Thủ")
+    CreateInputBox(TabFrames[2], "Kích thước Hitbox (Mặc định: 2)...", getgenv().UmlagiSpeedEngine.HitboxSize, function(val)
+        getgenv().UmlagiSpeedEngine.HitboxSize = val
+    end)
+
+    CreateSection(TabFrames[2], "Vũ Khí Tối Thượng")
+    CreateFeatureBtn(TabFrames[2], "The Real Dropkick", "https://pastefy.app/gLN6nNTz/raw")
+    CreateFeatureBtn(TabFrames[2], "Homelander", "https://pastefy.app/hvZVgNwi/raw")
+    CreateFeatureBtn(TabFrames[2], "Hút/Húc Người (Fling)", "https://pastefy.app/PukLGm6f/raw")
+    CreateFeatureBtn(TabFrames[2], "Super Ring V4", "https://pastefy.app/OVALgkaM/raw")
+
+    CreateSection(TabFrames[2], "Hỗ Trợ Sinh Tồn")
+    CreateFeatureBtn(TabFrames[2], "Bất Tử (God Mode)", "https://raw.githubusercontent.com/Rawbr10/Roblox-Scripts/refs/heads/main/God%20Mode%20Script%20Universal")
+    CreateFeatureBtn(TabFrames[2], "Hồi Sinh Ở Chỗ Chết", "https://pastefy.app/HvYoYiOV/raw")
+    CreateFeatureBtn(TabFrames[2], "Nhìn Trong Tối (Full Bright)", "https://pastefy.app/mCHfGbbo/raw")
+    CreateFeatureBtn(TabFrames[2], "Tương Tác Nhanh (Instant)", "https://pastefy.app/YD3mPCZY/raw")
+
+    CreateSection(TabFrames[2], "Truy Quét & ESP")
+    CreateFeatureBtn(TabFrames[2], "ESP 1", "https://pastefy.app/RT85bSK1/raw")
+    CreateFeatureBtn(TabFrames[2], "Định Vị Người Chơi (Locator)", "https://pastefy.app/q6yqjCvh/raw")
+    CreateFeatureBtn(TabFrames[2], "Định Vị Vật Phẩm", "https://pastefy.app/tHQDUAay/raw")
+    CreateFeatureBtn(TabFrames[2], "Định Vị NPC", "https://pastefy.app/fsXLv5GO/raw")
+
+    CreateSection(TabFrames[2], "Tấn Attack (Aimbot & Khóa Target)")
+    CreateFeatureBtn(TabFrames[2], "Khóa Mục Tiêu", "https://pastefy.app/w1YfXriF/raw")
+    CreateFeatureBtn(TabFrames[2], "Aimbot Lỏ", "https://pastefy.app/Bz9FzWdQ/raw")
+    CreateFeatureBtn(TabFrames[2], "Aimbot NPC", "https://pastefy.app/RYbiFLTu/raw")
+    CreateFeatureBtn(TabFrames[2], "Aimbot Mobile", "https://raw.githubusercontent.com/DanielHubll/DanielHubll/refs/heads/main/Aimbot%20Mobile")
+    CreateFeatureBtn(TabFrames[2], "Aimbot Vòng", "https://pastefy.app/hcMNbh55/raw")
+    CreateFeatureBtn(TabFrames[2], "Tâm Ảo", "https://pastefy.app/591kXU4U/raw")
+    CreateFeatureBtn(TabFrames[2], "Hitbox Đầu", "https://pastefy.app/hMHOFa00/raw")
+    CreateFeatureBtn(TabFrames[2], "Ghim Các Bộ Phận", "https://pastefy.app/SYDf1rVc/raw")
+    CreateFeatureBtn(TabFrames[2], "Né Người Chơi", "https://pastefy.app/84QxSGXV/raw")
+    CreateFeatureBtn(TabFrames[2], "Stop Script", "https://pastefy.app/1wTX82yo/raw")
+
+    -- TAB 3: BAY VÀ CHẠY
+    CreateSection(TabFrames[3], "Công Cụ Bay Lượn")
+    CreateFeatureBtn(TabFrames[3], "Fly GUI V3", "https://raw.githubusercontent.com/XNEOFF/FlyGuiV3/main/FlyGuiV3.txt")
+    CreateFeatureBtn(TabFrames[3], "Bay Siêu Nhân", "https://pastefy.app/7tvTLUxV/raw")
+    CreateFeatureBtn(TabFrames[3], "FlyCar", "https://raw.githubusercontent.com/LiverMods/ModsScriptsGames-/main/FlyCarV1")
+
+    CreateSection(TabFrames[3], "Di Chuyển Tốc Độ")
+    CreateFeatureBtn(TabFrames[3], "Điều Khiển Xe Mới", "https://pastefy.app/ryKIM2W7/raw")
+    CreateFeatureBtn(TabFrames[3], "Điều Khiển China", "https://raw.githubusercontent.com/cytj777i/6669178/main/%E5%8D%95%E4%B8%80%E7%89%A9%E4%BD%93%E9%A3%9E%E8%A1%8C%E8%BD%BD%E8%87%AA%E5%B7%B1%E6%9C%80%E7%BB%88%E4%BC%98%E5%8C%96%E7%89%88")
+    CreateFeatureBtn(TabFrames[3], "Điều Khiển V5", "https://rawscripts.net/raw/Universal-Script-Fe-Telekinesis-V5-21542")
+    CreateFeatureBtn(TabFrames[3], "⚡ Chạy Nhanh", "https://pastefy.app/O97G1Ckt/raw")
+
+    -- TAB 4: NGƯỜI CHƠI
+    CreateSection(TabFrames[4], "Di Chuyển & Vật Lý (Engine)")
+    CreateToggleBtn(TabFrames[4], "Đi Xuyên Tường (Noclip)", getgenv().UmlagiSpeedEngine.Noclip, function(val)
+        getgenv().UmlagiSpeedEngine.Noclip = val
+    end)
+    CreateInputBox(TabFrames[4], "Độ Nhảy / JumpPower (Mặc định: 50)...", getgenv().UmlagiSpeedEngine.JumpPower, function(val)
+        getgenv().UmlagiSpeedEngine.JumpPower = val
+    end)
+    CreateToggleBtn(TabFrames[4], "Nhảy Liên Tục (Infinite Jump)", getgenv().UmlagiSpeedEngine.InfiniteJump, function(val)
+        getgenv().UmlagiSpeedEngine.InfiniteJump = val
+    end)
+
+    CreateSection(TabFrames[4], "Góc Nhìn & Hình Dáng")
+    CreateFeatureBtn(TabFrames[4], "Tăng Tầm Nhìn Xa", "https://pastefy.app/P2PEp8rG/raw")
+    CreateFeatureBtn(TabFrames[4], "X-Ray", "https://pastefy.app/6ag93TAl/raw")
+    CreateFeatureBtn(TabFrames[4], "Phá Góc Nhìn Thứ Nhất", "https://pastefy.app/oLvE2cjO/raw")
+    CreateFeatureBtn(TabFrames[4], "Phóng Xa", "https://pastefy.app/nOcoiOz8/raw")
+    CreateFeatureBtn(TabFrames[4], "Xóa Sương Mù", "https://pastefy.app/5rStr4ul/raw")
+    CreateFeatureBtn(TabFrames[4], "Bản Đồ (Mini Map)", "https://pastefy.app/ub88f3OQ/raw")
+
+    CreateSection(TabFrames[4], "Trạng Thái Cơ Thể")
+    CreateFeatureBtn(TabFrames[4], "Auto Click", "https://pastefy.app/9E03h9lt/raw")
+    CreateFeatureBtn(TabFrames[4], "Nhân Bản (Clone)", "https://pastefy.app/0jBn9vSj/raw")
+    CreateFeatureBtn(TabFrames[4], "Tốc Biến (Flash TP)", "https://pastefy.app/gNDqAXxw/raw")
+    CreateFeatureBtn(TabFrames[4], "Tua Ngược V2", "https://pastefy.app/9zvCpAM5/raw")
+    CreateFeatureBtn(TabFrames[4], "Tua Ngược Thời Gian (Cũ)", "https://pastefy.app/A2GohAdN/raw")
+    CreateFeatureBtn(TabFrames[4], "Bò Trên Tường V2", "https://pastefy.app/gyTSzcAO/raw")
+    CreateFeatureBtn(TabFrames[4], "Bò Trên Tường (Cũ)", "https://pastefy.app/KrpQrjgK/raw")
+    CreateFeatureBtn(TabFrames[4], "Rơi Xuống Không Chết", "https://pastefy.app/FbmCnaYj/raw")
+    CreateFeatureBtn(TabFrames[4], "Đi Bộ Trên Không (Air Walk)", "https://pastefy.app/vU77hzv1/raw")
+    CreateFeatureBtn(TabFrames[4], "Tạo Khối Để Đi (Platform)", "https://pastefy.app/x3uGISdK/raw")
+    CreateFeatureBtn(TabFrames[4], "Rơi Chậm (Slow Fall)", "https://pastefy.app/5axwRA9p/raw")
+    CreateFeatureBtn(TabFrames[4], "Thịnh Lọ Hub", "https://raw.githubusercontent.com/thunhchk/Thinhlo/refs/heads/main/thinhlo.lua")
+    CreateFeatureBtn(TabFrames[4], "Tàng Hình", "https://rawscripts.net/raw/Universal-Script-Awesome-Invisible-man-21074")
+    CreateFeatureBtn(TabFrames[4], "Xoay Khi Di Chuyển", "https://pastefy.app/lEah5uLu/raw")
+    CreateFeatureBtn(TabFrames[4], "Xoay 380°", "https://pastefy.app/ts6mkSRS/raw")
+    CreateFeatureBtn(TabFrames[4], "Hành Động (Emotes)", "https://raw.githubusercontent.com/7yd7/Hub/refs/heads/Branch/GUIS/Emotes.lua")
+    CreateFeatureBtn(TabFrames[4], "Animation Siêu Tốc", "https://pastefy.app/u0MferM0/raw")
+
+    -- TAB 5: TELEPORT
+    CreateSection(TabFrames[5], "Công Cụ Dịch Chuyển")
+    CreateFeatureBtn(TabFrames[5], "Dịch Chuyển Đến Người Chơi V2", "https://pastefy.app/w4extZ7A/raw")
+    CreateFeatureBtn(TabFrames[5], "Dịch Chuyển Đến Người Chơi", "https://pastefy.app/OqiEiM9x/raw")
+    CreateFeatureBtn(TabFrames[5], "Lưu Và Dịch V2", "https://pastefy.app/gmBNwqtg/raw")
+    CreateFeatureBtn(TabFrames[5], "Cánh Cửa Dịch Chuyển", "https://pastefy.app/LJtPtlA5/raw")
+    CreateFeatureBtn(TabFrames[5], "Menu Dịch Chuyển Player", "https://pastefy.app/7gEmEv5W/raw")
+    CreateFeatureBtn(TabFrames[5], "Dịch Chuyển VIP", "https://pastefy.app/CCIxL7Ou/raw")
+    CreateFeatureBtn(TabFrames[5], "Lưu & Dịch Chuyển (Hub)", "https://pastefy.app/BeiBmSZd/raw")
+    CreateFeatureBtn(TabFrames[5], "Không Gian", "https://pastefy.app/SDKDCWjU/raw")
+
+    -- TAB 6: BÁ KHÍ
+    CreateSection(TabFrames[6], "Hiệu Ứng & Kỹ Năng")
+    CreateFeatureBtn(TabFrames[6], "Xe Bay Màu", "https://pastefy.app/US3FPndK/raw")
+    CreateFeatureBtn(TabFrames[6], "Đổi Màu Xe", "https://pastefy.app/qUIxDuR3/raw")
+    CreateFeatureBtn(TabFrames[6], "Cánh Tay Hiệu Ứng", "https://pastefy.app/0otRDxfv/raw")
+    CreateFeatureBtn(TabFrames[6], "Cơ Thể Bay Màu", "https://pastefy.app/W3mfiHWB/raw")
+    CreateFeatureBtn(TabFrames[6], "Hiệu Ứng Khi Chết", "https://pastefy.app/IcWEjmuu/raw")
+    CreateFeatureBtn(TabFrames[6], "Hiệu Ứng Khi Di Chuyển", "https://pastefy.app/9Sm1vJ1u/raw")
+    CreateFeatureBtn(TabFrames[6], "Hiệu Ứng Lửa", "https://pastefy.app/mDYXMXVV/raw")
+    CreateFeatureBtn(TabFrames[6], "Biến Hình Admin Noli", "https://rawscripts.net/raw/Universal-Script-Universal-Admin-Noli-66548")
+
+    -- TAB 7: HỆ THỐNG
+    CreateSection(TabFrames[7], "Tính Năng & Sự Kiện")
+    CreateFeatureBtn(TabFrames[7], "Sóng Thần Brainrot", "https://pastefy.app/zquMaOJy/raw")
+    CreateFeatureBtn(TabFrames[7], "Free Cam", "https://rawscripts.net/raw/Universal-Script-FREECAM-script-80365")
+
+    CreateSection(TabFrames[7], "Server & Tối Ưu")
+    CreateFeatureBtn(TabFrames[7], "Tìm Server Ít Người", "https://pastefy.app/b1Ch2rvQ/raw")
+    CreateFeatureBtn(TabFrames[7], "Vào Lại Server (Rejoin)", function()
+        game:GetService("TeleportService"):Teleport(game.PlaceId, LocalPlayer)
+    end)
+    CreateFeatureBtn(TabFrames[7], "Giảm Lag OK", "https://pastefy.app/5KANZYgr/raw")
+    CreateFeatureBtn(TabFrames[7], "Giảm Lag (Fix Lag)", "https://raw.githubusercontent.com/TurboLite/Script/main/FixLag.lua")
+    CreateFeatureBtn(TabFrames[7], "Chống Treo (Anti-AFK)", "https://pastebin.com/raw/RZK9XdtH")
+end
+
+-- BẮT SỰ KIỆN XÁC NHẬN KEY
+SubmitBtn.MouseButton1Click:Connect(function()
+    if KeyInput.Text == CORRECT_KEY then
+        StatusLabel.Text = "🟢 Key Chính Xác! Đang mở Hub..."
+        StatusLabel.TextColor3 = Color3.fromRGB(0, 255, 127)
+        task.wait(1)
+        LoadMainHub()
+    else
+        StatusLabel.Text = "❌ Key Không Chính Xác! Vui lòng thử lại."
+        StatusLabel.TextColor3 = Color3.fromRGB(255, 60, 60)
+    end
+end)
