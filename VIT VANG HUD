@@ -604,7 +604,7 @@ local function LoadMainHub()
     CreateFeatureBtn(TabFrames[4], "Xoay Khi Di Chuyển", "https://pastefy.app/lEah5uLu/raw")
     CreateFeatureBtn(TabFrames[4], "Xoay 380°", "https://pastefy.app/ts6mkSRS/raw")
     CreateFeatureBtn(TabFrames[4], "Hành Động (Emotes)", "https://raw.githubusercontent.com/7yd7/Hub/refs/heads/Branch/GUIS/Emotes.lua")
-    CreateFeatureBtn(TabFrames[4], "Animation Siêu Tốc", "https://pastefy.app/u0MferM0/raw")
+    CreateFeatureBtn(TabFrames[4], "Animation Siêu Tốc", https://pastefy.app/bJ7W53YB/raw")
 
     -- TAB 5: TELEPORT
     CreateSection(TabFrames[5], "Công Cụ Dịch Chuyển")
