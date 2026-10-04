@@ -13,98 +13,20 @@ local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 
--- CẤU HÌNH KEY SYSTEM (Bạn có thể đổi Key tại đây)
+-- CẤU HÌNH KEY SYSTEM
 local CORRECT_KEY = "VitVangHub2026"
 local GET_KEY_LINK = "https://pastefy.app/nmDP9uaE/raw"
+local KEY_FILE_NAME = "VitVangHub_Key.txt"
 
--- =======================================================
--- HỆ THỐNG GIAO DIỆN NHẬP KEY (KEY SYSTEM GUI)
--- =======================================================
-local KeyGui = Instance.new("ScreenGui")
-KeyGui.Name = "VitVangKeyGui"
-KeyGui.Parent = game:GetService("CoreGui")
-KeyGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
-local KeyFrame = Instance.new("Frame")
-KeyFrame.Name = "KeyFrame"
-KeyFrame.Parent = KeyGui
-KeyFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
-KeyFrame.Position = UDim2.new(0.5, -175, 0.5, -110)
-KeyFrame.Size = UDim2.new(0, 350, 0, 220)
-KeyFrame.Active = true
-KeyFrame.Draggable = true
-Instance.new("UICorner", KeyFrame).CornerRadius = UDim.new(0, 12)
-
-local KeyStroke = Instance.new("UIStroke", KeyFrame)
-KeyStroke.Thickness = 2
-KeyStroke.Color = Color3.fromRGB(255, 204, 0)
-
-local KeyTitle = Instance.new("TextLabel", KeyFrame)
-KeyTitle.Text = "🔑 VỊT VÀNG HUB - KEY SYSTEM"
-KeyTitle.TextColor3 = Color3.fromRGB(255, 204, 0)
-KeyTitle.Font = Enum.Font.GothamBold
-KeyTitle.TextSize = 14
-KeyTitle.Position = UDim2.new(0, 0, 0, 15)
-KeyTitle.Size = UDim2.new(1, 0, 0, 25)
-KeyTitle.BackgroundTransparency = 1
-
-local KeyInput = Instance.new("TextBox", KeyFrame)
-KeyInput.Size = UDim2.new(0.85, 0, 0, 38)
-KeyInput.Position = UDim2.new(0.075, 0, 0.28, 0)
-KeyInput.PlaceholderText = "Nhập Key vào đây..."
-KeyInput.PlaceholderColor3 = Color3.fromRGB(120, 120, 140)
-KeyInput.Text = ""
-KeyInput.BackgroundColor3 = Color3.fromRGB(22, 22, 30)
-KeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
-KeyInput.Font = Enum.Font.GothamMedium
-KeyInput.TextSize = 12
-Instance.new("UICorner", KeyInput).CornerRadius = UDim.new(0, 8)
-local InputStroke = Instance.new("UIStroke", KeyInput)
-InputStroke.Color = Color3.fromRGB(45, 45, 60)
-
-local StatusLabel = Instance.new("TextLabel", KeyFrame)
-StatusLabel.Text = "Vui lòng nhập Key để tiếp tục"
-StatusLabel.TextColor3 = Color3.fromRGB(180, 180, 195)
-StatusLabel.Font = Enum.Font.Gotham
-StatusLabel.TextSize = 11
-StatusLabel.Position = UDim2.new(0, 0, 0.48, 0)
-StatusLabel.Size = UDim2.new(1, 0, 0, 20)
-StatusLabel.BackgroundTransparency = 1
-
-local SubmitBtn = Instance.new("TextButton", KeyFrame)
-SubmitBtn.Size = UDim2.new(0.4, 0, 0, 35)
-SubmitBtn.Position = UDim2.new(0.075, 0, 0.65, 0)
-SubmitBtn.BackgroundColor3 = Color3.fromRGB(255, 204, 0)
-SubmitBtn.Text = "Xác Nhận Key"
-SubmitBtn.TextColor3 = Color3.fromRGB(15, 15, 20)
-SubmitBtn.Font = Enum.Font.GothamBold
-SubmitBtn.TextSize = 11
-Instance.new("UICorner", SubmitBtn).CornerRadius = UDim.new(0, 8)
-
-local GetKeyBtn = Instance.new("TextButton", KeyFrame)
-GetKeyBtn.Size = UDim2.new(0.4, 0, 0, 35)
-GetKeyBtn.Position = UDim2.new(0.525, 0, 0.65, 0)
-GetKeyBtn.BackgroundColor3 = Color3.fromRGB(32, 32, 45)
-GetKeyBtn.Text = "Lấy Key (Copy Link)"
-GetKeyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-GetKeyBtn.Font = Enum.Font.GothamBold
-GetKeyBtn.TextSize = 11
-Instance.new("UICorner", GetKeyBtn).CornerRadius = UDim.new(0, 8)
-
-GetKeyBtn.MouseButton1Click:Connect(function()
-    if setclipboard then
-        setclipboard(GET_KEY_LINK)
-        StatusLabel.Text = "🟢 Đã copy Link lấy Key vào bộ nhớ tạm!"
-        StatusLabel.TextColor3 = Color3.fromRGB(0, 255, 127)
-    else
-        StatusLabel.Text = "❌ Executor không hỗ trợ copy tự động!"
-        StatusLabel.TextColor3 = Color3.fromRGB(255, 60, 60)
-    end
-end)
+-- BIẾN ĐẾM SỐ LẦN NHẬP SAI
+local wrongAttempts = 0
+local MAX_ATTEMPTS = 5
 
 -- KHỞI TẠO HUB CHÍNH KHI XÁC THỰC THÀNH CÔNG
 local function LoadMainHub()
-    KeyGui:Destroy()
+    if game:GetService("CoreGui"):FindFirstChild("VitVangKeyGui") then
+        game:GetService("CoreGui").VitVangKeyGui:Destroy()
+    end
 
     -- ENGINE CHẠY NGẦM DÙNG CHO NOCLIP, JUMP, HITBOX
     getgenv().UmlagiSpeedEngine = getgenv().UmlagiSpeedEngine or {
@@ -604,7 +526,7 @@ local function LoadMainHub()
     CreateFeatureBtn(TabFrames[4], "Xoay Khi Di Chuyển", "https://pastefy.app/lEah5uLu/raw")
     CreateFeatureBtn(TabFrames[4], "Xoay 380°", "https://pastefy.app/ts6mkSRS/raw")
     CreateFeatureBtn(TabFrames[4], "Hành Động (Emotes)", "https://raw.githubusercontent.com/7yd7/Hub/refs/heads/Branch/GUIS/Emotes.lua")
-    CreateFeatureBtn(TabFrames[4], "Animation Siêu Tốc", https://pastefy.app/bJ7W53YB/raw")
+    CreateFeatureBtn(TabFrames[4], "Animation Siêu Tốc", "https://pastefy.app/bJ7W53YB/raw")
 
     -- TAB 5: TELEPORT
     CreateSection(TabFrames[5], "Công Cụ Dịch Chuyển")
@@ -643,15 +565,121 @@ local function LoadMainHub()
     CreateFeatureBtn(TabFrames[7], "Chống Treo (Anti-AFK)", "https://pastebin.com/raw/RZK9XdtH")
 end
 
--- BẮT SỰ KIỆN XÁC NHẬN KEY
-SubmitBtn.MouseButton1Click:Connect(function()
-    if KeyInput.Text == CORRECT_KEY then
-        StatusLabel.Text = "🟢 Key Chính Xác! Đang mở Hub..."
-        StatusLabel.TextColor3 = Color3.fromRGB(0, 255, 127)
-        task.wait(1)
-        LoadMainHub()
-    else
-        StatusLabel.Text = "❌ Key Không Chính Xác! Vui lòng thử lại."
-        StatusLabel.TextColor3 = Color3.fromRGB(255, 60, 60)
-    end
-end)
+-- =======================================================
+-- HỆ THỐNG KIỂM TRA KEY ĐÃ LƯU VÀ HIỂN THỊ GUI KEY
+-- =======================================================
+if isfile and readfile and isfile(KEY_FILE_NAME) and readfile(KEY_FILE_NAME) == CORRECT_KEY then
+    -- ĐÃ CÓ KEY ĐÚNG TRONG MÁY -> BỎ QUA GUI KEY VÀ MỞ HUB LUÔN
+    LoadMainHub()
+else
+    -- CHƯA CÓ KEY HOẶC KEY SAI -> MỞ GUI NHẬP KEY
+    local KeyGui = Instance.new("ScreenGui")
+    KeyGui.Name = "VitVangKeyGui"
+    KeyGui.Parent = game:GetService("CoreGui")
+    KeyGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+    local KeyFrame = Instance.new("Frame")
+    KeyFrame.Name = "KeyFrame"
+    KeyFrame.Parent = KeyGui
+    KeyFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
+    KeyFrame.Position = UDim2.new(0.5, -175, 0.5, -110)
+    KeyFrame.Size = UDim2.new(0, 350, 0, 220)
+    KeyFrame.Active = true
+    KeyFrame.Draggable = true
+    Instance.new("UICorner", KeyFrame).CornerRadius = UDim.new(0, 12)
+
+    local KeyStroke = Instance.new("UIStroke", KeyFrame)
+    KeyStroke.Thickness = 2
+    KeyStroke.Color = Color3.fromRGB(255, 204, 0)
+
+    local KeyTitle = Instance.new("TextLabel", KeyFrame)
+    KeyTitle.Text = "🔑 VỊT VÀNG HUB - KEY SYSTEM"
+    KeyTitle.TextColor3 = Color3.fromRGB(255, 204, 0)
+    KeyTitle.Font = Enum.Font.GothamBold
+    KeyTitle.TextSize = 14
+    KeyTitle.Position = UDim2.new(0, 0, 0, 15)
+    KeyTitle.Size = UDim2.new(1, 0, 0, 25)
+    KeyTitle.BackgroundTransparency = 1
+
+    local KeyInput = Instance.new("TextBox", KeyFrame)
+    KeyInput.Size = UDim2.new(0.85, 0, 0, 38)
+    KeyInput.Position = UDim2.new(0.075, 0, 0.28, 0)
+    KeyInput.PlaceholderText = "Nhập Key vào đây..."
+    KeyInput.PlaceholderColor3 = Color3.fromRGB(120, 120, 140)
+    KeyInput.Text = ""
+    KeyInput.BackgroundColor3 = Color3.fromRGB(22, 22, 30)
+    KeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+    KeyInput.Font = Enum.Font.GothamMedium
+    KeyInput.TextSize = 12
+    Instance.new("UICorner", KeyInput).CornerRadius = UDim.new(0, 8)
+    local InputStroke = Instance.new("UIStroke", KeyInput)
+    InputStroke.Color = Color3.fromRGB(45, 45, 60)
+
+    local StatusLabel = Instance.new("TextLabel", KeyFrame)
+    StatusLabel.Text = "Vui lòng nhập Key để tiếp tục"
+    StatusLabel.TextColor3 = Color3.fromRGB(180, 180, 195)
+    StatusLabel.Font = Enum.Font.Gotham
+    StatusLabel.TextSize = 11
+    StatusLabel.Position = UDim2.new(0, 0, 0.48, 0)
+    StatusLabel.Size = UDim2.new(1, 0, 0, 20)
+    StatusLabel.BackgroundTransparency = 1
+
+    local SubmitBtn = Instance.new("TextButton", KeyFrame)
+    SubmitBtn.Size = UDim2.new(0.4, 0, 0, 35)
+    SubmitBtn.Position = UDim2.new(0.075, 0, 0.65, 0)
+    SubmitBtn.BackgroundColor3 = Color3.fromRGB(255, 204, 0)
+    SubmitBtn.Text = "Xác Nhận Key"
+    SubmitBtn.TextColor3 = Color3.fromRGB(15, 15, 20)
+    SubmitBtn.Font = Enum.Font.GothamBold
+    SubmitBtn.TextSize = 11
+    Instance.new("UICorner", SubmitBtn).CornerRadius = UDim.new(0, 8)
+
+    local GetKeyBtn = Instance.new("TextButton", KeyFrame)
+    GetKeyBtn.Size = UDim2.new(0.4, 0, 0, 35)
+    GetKeyBtn.Position = UDim2.new(0.525, 0, 0.65, 0)
+    GetKeyBtn.BackgroundColor3 = Color3.fromRGB(32, 32, 45)
+    GetKeyBtn.Text = "Lấy Key (Copy Link)"
+    GetKeyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    GetKeyBtn.Font = Enum.Font.GothamBold
+    GetKeyBtn.TextSize = 11
+    Instance.new("UICorner", GetKeyBtn).CornerRadius = UDim.new(0, 8)
+
+    GetKeyBtn.MouseButton1Click:Connect(function()
+        if setclipboard then
+            setclipboard(GET_KEY_LINK)
+            StatusLabel.Text = "🟢 Đã copy Link lấy Key vào bộ nhớ tạm!"
+            StatusLabel.TextColor3 = Color3.fromRGB(0, 255, 127)
+        else
+            StatusLabel.Text = "❌ Executor không hỗ trợ copy tự động!"
+            StatusLabel.TextColor3 = Color3.fromRGB(255, 60, 60)
+        end
+    end)
+
+    -- BẮT SỰ KIỆN XÁC NHẬN KEY
+    SubmitBtn.MouseButton1Click:Connect(function()
+        if KeyInput.Text == CORRECT_KEY then
+            -- TỰ ĐỘNG LƯU KEY VÀO BỘ NHỚ MÁY
+            if writefile then
+                writefile(KEY_FILE_NAME, CORRECT_KEY)
+            end
+
+            StatusLabel.Text = "🟢 Key Chính Xác! Đã lưu Key và mở Hub..."
+            StatusLabel.TextColor3 = Color3.fromRGB(0, 255, 127)
+            task.wait(1)
+            LoadMainHub()
+        else
+            wrongAttempts = wrongAttempts + 1
+            local remainingAttempts = MAX_ATTEMPTS - wrongAttempts
+
+            if remainingAttempts > 0 then
+                StatusLabel.Text = string.format("❌ Key Sai! Còn lại %d/%d lần thử.", remainingAttempts, MAX_ATTEMPTS)
+                StatusLabel.TextColor3 = Color3.fromRGB(255, 60, 60)
+            else
+                StatusLabel.Text = "🚫 Nhập sai quá 5 lần! Đang kích khỏi game..."
+                StatusLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+                task.wait(1.5)
+                LocalPlayer:Kick("\n[VỊT VÀNG HUB]\nBạn đã nhập sai Key quá 5 lần!")
+            end
+        end
+    end)
+end
